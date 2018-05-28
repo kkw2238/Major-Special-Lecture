@@ -177,6 +177,8 @@
   <ItemGroup>
     <None Include="Shaders\FragmentWave.fs" />
     <None Include="Shaders\FragmentWave.vs" />
+    <None Include="Shaders\PaticleAnimation.fs" />
+    <None Include="Shaders\PaticleAnimation.vs" />
     <None Include="Shaders\Radar.fs" />
     <None Include="Shaders\Radar.vs" />
     <None Include="Shaders\Sampler.fs" />

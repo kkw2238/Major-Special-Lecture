@@ -33,11 +33,5 @@ void main()
 	//
 	//FragColor = vec4(color);
 
-	FragColor = vec4(0);
-
-	float x = cos(pi * u_Scale) * 0.25f;
-	float y = sin(pi * u_Scale) * 0.25f;
-
-	if(distance(vec2(x,y), v_Value) < 0.1f)
-		FragColor = vec4(1.0f);
+	FragColor = u_Color;
 }

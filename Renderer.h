@@ -50,6 +50,7 @@ public:
 	void CreateVSWaveVertex();
 	void DrawSTParticle(int sx, int sy, int ex, int ey, float time);
 	void DrawWaveParticle(float time);
+	void DrawParticleAnimation(float time);
 	void DrawLine();
 	std::vector<float>		m_pCenterPosition;
 
@@ -80,6 +81,7 @@ private:
 	GLuint m_RaderShader = 0;
 	GLuint m_SamplerShader = 0;
 	GLuint m_VSWaveShader = 0;
+	GLuint m_VSPaticleAnimation = 0;
 	
 	int m_UniformID = 0;
 

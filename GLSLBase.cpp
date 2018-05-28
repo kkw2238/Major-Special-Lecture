@@ -22,7 +22,7 @@ void RenderScene(void)
 	glEnable(GL_BLEND);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	//glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// Renderer Test
 	//g_Renderer->Test();
@@ -35,8 +35,8 @@ void RenderScene(void)
 		-0.5f, -0.5f
 	};
 	
-	//g_Renderer->FillScreen(0.0f, 0.0f, 0.0f, 0.3f);
-	g_Renderer->DrawLine();
+	g_Renderer->FillScreen(0.0f, 0.0f, 0.0f, 0.3f);
+	g_Renderer->DrawParticleAnimation(0.0f);
 
 	
 	glutSwapBuffers();
