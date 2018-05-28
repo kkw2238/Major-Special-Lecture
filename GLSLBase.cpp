@@ -36,7 +36,7 @@ void RenderScene(void)
 	};
 	
 	//g_Renderer->FillScreen(0.0f, 0.0f, 0.0f, 0.3f);
-	g_Renderer->Lecture5();
+	g_Renderer->DrawLine();
 
 	
 	glutSwapBuffers();

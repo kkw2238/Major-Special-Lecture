@@ -41,17 +41,16 @@ public:
 
 	bool IsInitialized();
 	void Test(float* centers, float time);
-	void DrawHollowRect();
 	void DrawLader(float* centers, float time);
-	void GetPoints(float size, float3 midPos, float** vertexArray);
 	void FillScreen(float r, float g, float b, float a);
 	GLuint CreatePngTexture(char * filePath);
 	void SetTargetPoint(float x, float y);
-
 	unsigned char * loadBMPRaw(const char * imagepath, unsigned int& outWidth, unsigned int& outHeight);
 public:
+	void CreateVSWaveVertex();
 	void DrawSTParticle(int sx, int sy, int ex, int ey, float time);
 	void DrawWaveParticle(float time);
+	void DrawLine();
 	std::vector<float>		m_pCenterPosition;
 
 private:
@@ -59,9 +58,6 @@ private:
 
 	void Initialize(int windowSizeX, int windowSizeY);
 	void AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType);
-	void CreateSmile();
-	void CreateTextureVBObject();
-	void CreateVertexBufferObjects();
 	void GetGLPosition(float x, float y, float *newX, float *newY);
 
 	GLuint CompileShaders(char* filenameVS, char* filenameFS);
@@ -83,20 +79,13 @@ private:
 	GLuint m_FragmentWaveShader = 0;
 	GLuint m_RaderShader = 0;
 	GLuint m_SamplerShader = 0;
+	GLuint m_VSWaveShader = 0;
 	
 	int m_UniformID = 0;
 
 	// Leture2 
 public:
-	void	Lecture2();
-	GLuint	m_VBOHollowRect = 0;
-
-public:
-	void	CreateLecture3VertexData();
-	void	Lecture3();
-	void	Update();
-
-	float	m_fScale = 0.5f;
+	float	m_fScale = 0.0f;
 	float*  m_fCenters;
 
 	GLuint  m_VBOColor = 0;
@@ -107,16 +96,8 @@ public:
 
 	float m_StartPos[2] = { 0.0f, 0.0f };
 
-public:
-	void	Lecture4();
-	void	CreateLecture4VertexData();
-
-public:
-	int m_nVertices;
-	void Lecture5();
-	void CreateLecture5VertexData();
-
 private:
+	int gDummyVertexCount = 0;
 	unsigned char* texture;
 };
 

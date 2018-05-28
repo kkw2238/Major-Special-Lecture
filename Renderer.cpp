@@ -30,16 +30,12 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	m_FragmentWaveShader = CompileShaders("./Shaders/FragmentWave.vs", "./Shaders/FragmentWave.fs");
 	m_RaderShader = CompileShaders("./Shaders/Radar.vs", "./Shaders/Radar.fs");
 	m_SamplerShader = CompileShaders("./Shaders/Sampler.vs", "./Shaders/Sampler.fs");
+	m_VSWaveShader = CompileShaders("./Shaders/VSWave.vs", "./Shaders/VSWave.fs");
+	m_PBOTexture[0] = CreatePngTexture("./Texture/DDing.png");
 
-	m_PBOTexture[0] = CreatePngTexture("./Texture/Cloud-particle.png");
+	CreateVSWaveVertex();
 
-	//CreateSmile();
-	CreateLecture5VertexData();
-	Lecture5();
-	//CreateVertexBufferObjects();
-	//Lecture3();
-
-	if (m_SolidRectShader > 0 && m_VBOHollowRect > 0)
+	if (m_SolidRectShader > 0 && m_VBORect > 0)
 	{
 		m_Initialized = true;
 	}
@@ -48,42 +44,6 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 bool Renderer::IsInitialized()
 {
 	return m_Initialized;
-}
-
-void Renderer::CreateVertexBufferObjects()
-{
-	auto dre = std::default_random_engine(110);
-	auto ure = std::uniform_real_distribution<float>(0.0f, 1.0f);
-
-
-	float rect[]
-		=
-	{
-		-1.0f, -1.0f, +0.f, 1.0f, 
-		-1.0f, +1.0f, +0.f, 1.0f, 
-		+1.0f, +1.0f, +0.f, 1.0f, //Triangle1
-						    
-		-1.0f, -1.0f, +0.f, 1.0f,  
-		+1.0f, +1.0f, +0.f, 1.0f, 
-		+1.0f, -1.0f, +0.f, 1.0f //Triangle2
-	};
-
-	float color[]
-		=
-	{
-		ure(dre), ure(dre), ure(dre), ure(dre),
-		ure(dre), ure(dre), ure(dre), ure(dre),
-		ure(dre), ure(dre), ure(dre), ure(dre),
-		ure(dre), ure(dre), ure(dre), ure(dre)
-	};
-
-	glGenBuffers(1, &m_VBORect);	// 그 버퍼를 관리하는 ID가 리턴
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBORect);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(rect), rect, GL_STATIC_DRAW);
-
-	glGenBuffers(1, &m_VBOColor);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBOColor);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(color), color, GL_STATIC_DRAW);
 }
 
 void Renderer::AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType)
@@ -121,212 +81,6 @@ void Renderer::AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum S
 	glAttachShader(ShaderProgram, ShaderObj);
 }
 
-void Renderer::CreateSmile()
-{
-	GLulong textureSmileTotal[]
-		=
-	{
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFFFFFFFF, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFFFFFFFF,
-		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
-		0xFF00FF00, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF00FF00,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
-		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF00FF00, 0xFF00FF00, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
-		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-
-		0xFF00FF00, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF00FF00,
-		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
-		0xFFFFFFFF, 0xFF00FF00, 0xFF00FF00, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF00FF00, 0xFF00FF00, 0xFFFFFFFF,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-
-		0xFF00FF00, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF00FF00,
-		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
-		0xFFFFFFFF, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFFFFFFFF,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-
-		0xFF00FF00, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF00FF00,
-		0xFF00FF00, 0xFF00FF00, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF00FF00, 0xFF00FF00,
-		0xFFFFFFFF, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFFFFFFFF,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF
-	};
-	glGenTextures(1, &m_PBOTexture[0]);
-	glBindTexture(GL_TEXTURE_2D, m_PBOTexture[0]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 8, 48, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureSmileTotal);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	/*GLulong textureSmile[]
-		=
-	{
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFFFFFFFF, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFFFFFFFF,
-		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
-		0xFF00FF00, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF00FF00,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF
-	};
-	glGenTextures(1, &m_PBOTexture[0]);
-	glBindTexture(GL_TEXTURE_2D, m_PBOTexture[0]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureSmile);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	GLulong textureSmile1[]
-		=
-	{
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
-		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF
-	};
-	glGenTextures(1, &m_PBOTexture[1]);
-	glBindTexture(GL_TEXTURE_2D, m_PBOTexture[1]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureSmile1);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	GLulong textureSmile2[]
-		=
-	{
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF00FF00, 0xFF00FF00, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
-		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF
-	};
-	glGenTextures(1, &m_PBOTexture[2]);
-	glBindTexture(GL_TEXTURE_2D, m_PBOTexture[2]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureSmile2);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	GLulong textureSmile3[]
-		=
-	{
-		0xFF00FF00, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF00FF00,
-		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
-		0xFFFFFFFF, 0xFF00FF00, 0xFF00FF00, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF00FF00, 0xFF00FF00, 0xFFFFFFFF,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF
-	};
-	glGenTextures(1, &m_PBOTexture[3]);
-	glBindTexture(GL_TEXTURE_2D, m_PBOTexture[3]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureSmile3);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	GLulong textureSmile4[]
-		=
-	{
-		0xFF00FF00, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF00FF00,
-		0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00,
-		0xFFFFFFFF, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFFFFFFFF,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF
-	};
-	glGenTextures(1, &m_PBOTexture[4]);
-	glBindTexture(GL_TEXTURE_2D, m_PBOTexture[4]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureSmile4);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	GLulong textureSmile5[]
-		=
-	{
-		0xFF00FF00, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF00FF00,
-		0xFF00FF00, 0xFF00FF00, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF00FF00, 0xFF00FF00,
-		0xFFFFFFFF, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFF00FF00, 0xFFFFFFFF,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFF0000FF, 0xFF0000FF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000, 0xFFFF0000,
-		0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF
-	};
-	glGenTextures(1, &m_PBOTexture[5]);
-	glBindTexture(GL_TEXTURE_2D, m_PBOTexture[5]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureSmile5);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);*/
-}
-
-void Renderer::CreateTextureVBObject()
-{
-	float vertPosTex[30] =
-	{
-		-1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 
-		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 
-		1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-
-		1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 
-		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-		1.0f, -1.0f, 0.0f, 1.0f, 0.0f
-	};
-
-
-	glGenBuffers(1, &m_VBOTextured);	// 그 버퍼를 관리하는 ID가 리턴
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBOTextured);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertPosTex), vertPosTex, GL_STATIC_DRAW);
-}
-
 bool Renderer::ReadFile(char* filename, std::string *target)
 {
 	std::ifstream file(filename);
@@ -342,6 +96,86 @@ bool Renderer::ReadFile(char* filename, std::string *target)
 		target->append("\n");
 	}
 	return true;
+}
+
+void Renderer::CreateVSWaveVertex()
+{
+	float basePosX = -0.5f;
+	float basePosY = -0.5f;
+	float targetPosX = 0.5f;
+	float targetPosY = 0.5f;
+
+	int pointCountX = 30;
+	int pointCountY = 30;
+
+	float width = targetPosX - basePosX;
+	float height = targetPosY - basePosY;
+
+	float* point = new float[pointCountX*pointCountY * 2];
+	float* vertices = new float[(pointCountX - 1)*(pointCountY - 1) * 2 * 3 * 3];
+	gDummyVertexCount = (pointCountX - 1)*(pointCountY - 1) * 2 * 3;
+
+	//Prepare points
+	for (int x = 0; x < pointCountX; x++)
+	{
+		for (int y = 0; y < pointCountY; y++)
+		{
+			point[(y*pointCountX + x) * 2 + 0] = basePosX + width * (x / (float)(pointCountX - 1));
+			point[(y*pointCountX + x) * 2 + 1] = basePosY + height * (y / (float)(pointCountY - 1));
+		}
+	}
+
+	//Make triangles
+	int vertIndex = 0;
+	for (int x = 0; x < pointCountX - 1; x++)
+	{
+		for (int y = 0; y < pointCountY - 1; y++)
+		{
+			//Triangle part 1
+			vertices[vertIndex] = point[(y*pointCountX + x) * 2 + 0];
+			vertIndex++;
+			vertices[vertIndex] = point[(y*pointCountX + x) * 2 + 1];
+			vertIndex++;
+			vertices[vertIndex] = 0.f;
+			vertIndex++;
+			vertices[vertIndex] = point[((y + 1)*pointCountX + (x + 1)) * 2 + 0];
+			vertIndex++;
+			vertices[vertIndex] = point[((y + 1)*pointCountX + (x + 1)) * 2 + 1];
+			vertIndex++;
+			vertices[vertIndex] = 0.f;
+			vertIndex++;
+			vertices[vertIndex] = point[((y + 1)*pointCountX + x) * 2 + 0];
+			vertIndex++;
+			vertices[vertIndex] = point[((y + 1)*pointCountX + x) * 2 + 1];
+			vertIndex++;
+			vertices[vertIndex] = 0.f;
+			vertIndex++;
+
+			//Triangle part 2
+			vertices[vertIndex] = point[(y*pointCountX + x) * 2 + 0];
+			vertIndex++;
+			vertices[vertIndex] = point[(y*pointCountX + x) * 2 + 1];
+			vertIndex++;
+			vertices[vertIndex] = 0.f;
+			vertIndex++;
+			vertices[vertIndex] = point[(y*pointCountX + (x + 1)) * 2 + 0];
+			vertIndex++;
+			vertices[vertIndex] = point[(y*pointCountX + (x + 1)) * 2 + 1];
+			vertIndex++;
+			vertices[vertIndex] = 0.f;
+			vertIndex++;
+			vertices[vertIndex] = point[((y + 1)*pointCountX + (x + 1)) * 2 + 0];
+			vertIndex++;
+			vertices[vertIndex] = point[((y + 1)*pointCountX + (x + 1)) * 2 + 1];
+			vertIndex++;
+			vertices[vertIndex] = 0.f;
+			vertIndex++;
+		}
+	}
+
+	glGenBuffers(1, &m_VBORect);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBORect);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*(pointCountX - 1)*(pointCountY - 1) * 2 * 3 * 3, vertices, GL_STATIC_DRAW);
 }
 
 void Renderer::DrawSTParticle(int sx, int sy, int ex, int ey, float time)
@@ -360,7 +194,7 @@ void Renderer::DrawSTParticle(int sx, int sy, int ex, int ey, float time)
 	GLuint endposid = glGetUniformLocation(m_WaveShader, "u_Endpos");
 	glUniform2f(endposid, ex, ey);
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBOHollowRect);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBORect);
 	// glVertexAttribPointer : Draw시 데이터를 읽어갈 단위의 크기 및 시작점 설정
 		glVertexAttribPointer(attribPosition, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
 
@@ -368,7 +202,7 @@ void Renderer::DrawSTParticle(int sx, int sy, int ex, int ey, float time)
 	// glDrawArrays : 랜더링의 시작
 	glDrawArrays(GL_POINT, 0, 500);
 
-	glDisableVertexAttribArray(m_nVertices);
+	glDisableVertexAttribArray(m_VBORect);
 }
 
 void Renderer::DrawWaveParticle(float time)
@@ -398,6 +232,33 @@ void Renderer::DrawWaveParticle(float time)
 	glVertexAttribPointer(attribColor, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
 	// glDrawArrays : 랜더링의 시작
 	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	glDisableVertexAttribArray(attribPosition);
+}
+
+void Renderer::DrawLine()
+{
+	glUseProgram(m_VSWaveShader);
+	int attribPosition = glGetAttribLocation(m_VSWaveShader, "a_Position");
+	int uniformTime = glGetUniformLocation(m_VSWaveShader, "u_Time");
+	glUniform1f(uniformTime, m_fScale);
+	m_fScale += 0.01f;
+
+	unsigned int texID = GL_TEXTURE0;
+	for (int i = 0; i < NUM_OF_TEXTURE; ++i) {
+		glActiveTexture(texID);
+		glBindTexture(GL_TEXTURE_2D, m_PBOTexture[i]);
+		texID += 1;
+	}
+
+	glEnableVertexAttribArray(attribPosition);
+		glBindBuffer(GL_ARRAY_BUFFER, m_VBORect);
+
+	// glVertexAttribPointer : Draw시 데이터를 읽어갈 단위의 크기 및 시작점 설정
+		glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
+	
+	// glDrawArrays : 랜더링의 시작
+		glDrawArrays(GL_TRIANGLES, 0, gDummyVertexCount);
 
 	glDisableVertexAttribArray(attribPosition);
 }
@@ -500,25 +361,6 @@ void Renderer::Test(float* centers, float time ) // input 4
 	Sleep(1000);
 }
 
-void Renderer::DrawHollowRect()
-{
-	glUseProgram(m_SolidRectShader);
-
-	int attribPosition = glGetAttribLocation(m_SolidRectShader, "a_Position");
-	int attribColor = glGetAttribLocation(m_SolidRectShader, "u_Color");
-
-	glEnableVertexAttribArray(attribPosition);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBOHollowRect);
-	// glVertexAttribPointer : Draw시 데이터를 읽어갈 단위의 크기 및 시작점 설정
-	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
-	glVertexAttribPointer(attribColor, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
-
-	// glDrawArrays : 랜더링의 시작
-	glDrawArrays(GL_LINE_LOOP, 0, 4);
-
-	glDisableVertexAttribArray(attribPosition);
-}
-
 void Renderer::DrawLader(float * centers, float time)
 {
 	float newX, newY;
@@ -546,26 +388,6 @@ void Renderer::DrawLader(float * centers, float time)
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	glDisableVertexAttribArray(attribPosition);
-}
-
-void Renderer::GetPoints(float size, float3 midPos, float ** vertexArray)
-{
-	
-	float x = (float)rand() / (float)RAND_MAX;
-
-	float vertice[] =
-	{
-		midPos.x - size, midPos.y - size, x, 1.0f,
-		midPos.x - size, midPos.y + size, x, 1.0f,
-		midPos.x + size, midPos.y + size, x, 1.0f,//Triangle1
-										  
-		midPos.x + size, midPos.y + size, x, 1.0f,
-		midPos.x + size, midPos.y - size, x, 1.0f,//Triangle2
-		midPos.x - size, midPos.y - size, x, 1.0f
-	};
-
-	memcpy(*vertexArray, vertice, sizeof(vertice));
-	//(*vertexArray) = vertice;
 }
 
 void Renderer::FillScreen(float r, float g, float b, float a)
@@ -605,207 +427,6 @@ void Renderer::GetGLPosition(float x, float y, float *newX, float *newY)
 	*newY = y * 2.f / m_WindowSizeY;
 }
 
-void Renderer::Lecture2()
-{
-	float rect[] =
-	{
-		-0.5f, -0.5f, +0.0f, 
-		+0.5f, -0.5f, +0.0f,
-		+0.5f, +0.5f, +0.0f, 
-		-0.5f, +0.5f, +0.0f
-	};
-
-	glGenBuffers(1, &m_VBOHollowRect);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBOHollowRect);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(rect), rect, GL_STATIC_DRAW);
-}
-
-void Renderer::CreateLecture3VertexData()
-{
-	auto dre = std::default_random_engine();
-	auto ure = std::uniform_real_distribution<float>(0.0f, 1.0f);
-
-	float rect[]
-		=
-	{
-		-0.5, -0.5, 0.f, 1.0f,
-		-0.5, 0.5, 0.f, 1.0f,
-		0.5, 0.5, 0.f, 1.0f,//Triangle1
-
-		-0.5, -0.5, 0.f, 1.0f,
-		0.5, 0.5, 0.f, 1.0f,
-		0.5, -0.5, 0.f, 1.0f//Triangle2
-	};
-
-	glGenBuffers(1, &m_VBOHollowRect);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBOHollowRect);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(rect), rect, GL_STATIC_DRAW);
-
-	float color[]
-		=
-	{
-		ure(dre), ure(dre), ure(dre), ure(dre),
-		ure(dre), ure(dre), ure(dre), ure(dre),
-		ure(dre), ure(dre), ure(dre), ure(dre),
-		ure(dre), ure(dre), ure(dre), ure(dre)
-	};
-
-	glGenBuffers(1, &m_VBOColor);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBOColor);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(color), color, GL_STATIC_DRAW);
-}
-
-void Renderer::Lecture3()
-{
-	m_fScale += 0.05f;
-
-	glUseProgram(m_SolidRectShader);
-
-	GLuint attribPosition = glGetAttribLocation(m_SolidRectShader, "a_Position");
-	GLuint id = glGetUniformLocation(m_SolidRectShader, "u_Scale");
-	GLuint vsid = glGetUniformLocation(m_SolidRectShader, "u_vsScale");
-	glUniform1f(id, m_fScale);
-
-	glEnableVertexAttribArray(attribPosition);
-
-		glBindBuffer(GL_ARRAY_BUFFER, m_VBORect);
-			// glVertexAttribPointer : Draw시 데이터를 읽어갈 단위의 크기 및 시작점 설정
-			glVertexAttribPointer(attribPosition, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
-
-		glUniform1f(id, m_fScale);
-		glUniform1f(vsid, m_fScale);
-		// glDrawArrays : 랜더링의 시작
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-
-	glDisableVertexAttribArray(attribPosition);
-}
-
-void Renderer::Update()
-{
-}
-
-void Renderer::Lecture4()
-{
-	glUseProgram(m_SolidRectShader);
-
-	GLuint attribPosition = glGetAttribLocation(m_SolidRectShader, "a_Position");
-	GLuint attribColor = glGetAttribLocation(m_SolidRectShader, "a_Color");
-
-	GLuint id = glGetUniformLocation(m_SolidRectShader, "u_Scale");
-	GLuint vsid = glGetUniformLocation(m_SolidRectShader, "u_vsScale");
-
-	glEnableVertexAttribArray(attribPosition);
-	glEnableVertexAttribArray(attribColor);
-
-		glBindBuffer(GL_ARRAY_BUFFER, m_VBOHollowRect);
-		// glVertexAttribPointer : Draw시 데이터를 읽어갈 단위의 크기 및 시작점 설정
-			glVertexAttribPointer(attribPosition, 4, GL_FLOAT, GL_FALSE, sizeof(VS_INPUT_LAYOUT), 0);
-			glVertexAttribPointer(attribColor, 4, GL_FLOAT, GL_FALSE, sizeof(VS_INPUT_LAYOUT), (GLvoid*)(sizeof(float) * 4));
-
-			glUniform1f(id, m_fScale);
-			glUniform1f(vsid, m_fScale);
-		// glDrawArrays : 랜더링의 시작
-		glDrawArrays(GL_LINE_LOOP, 0, 6);
-
-		glDisableVertexAttribArray(attribColor);
-	glDisableVertexAttribArray(attribPosition);
-}
-
-void Renderer::CreateLecture4VertexData()
-{
-	auto dre = std::default_random_engine();
-	auto ure = std::uniform_real_distribution<float>(0.0f, 1.0f);
-
-	VS_INPUT_LAYOUT rect[]
-		=
-	{
-		VS_INPUT_LAYOUT(-0.5f, -0.5f, 0.f, 1.0f, ure(dre), ure(dre), ure(dre), ure(dre)),
-		VS_INPUT_LAYOUT(+0.5f, +0.5f, 0.f, 2.0f, ure(dre), ure(dre), ure(dre), ure(dre)),
-		VS_INPUT_LAYOUT(+0.5f, -0.5f, 0.f, 3.0f, ure(dre), ure(dre), ure(dre), ure(dre)),
-		VS_INPUT_LAYOUT(-0.5f, -0.5f, 0.f, 4.0f, ure(dre), ure(dre), ure(dre), ure(dre))
-	};
-
-	glGenBuffers(1, &m_VBOHollowRect);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBOHollowRect);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(rect), rect, GL_STATIC_DRAW);
-
-	float color[]
-		=
-	{
-		ure(dre), ure(dre), ure(dre), ure(dre),
-		ure(dre), ure(dre), ure(dre), ure(dre),
-		ure(dre), ure(dre), ure(dre), ure(dre),
-		ure(dre), ure(dre), ure(dre), ure(dre)
-	};
-
-	glGenBuffers(1, &m_VBOColor);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBOColor);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(color), color, GL_STATIC_DRAW);
-}
-
-void Renderer::Lecture5()
-{
-		m_fScale += 0.05f;
-
-	glUseProgram(m_WaveShader);
-
-	GLuint attribPosition = glGetAttribLocation(m_WaveShader, "a_Position");
-	glEnableVertexAttribArray(attribPosition);
-
-	GLuint attribColor = glGetAttribLocation(m_WaveShader, "a_Color");
-	glEnableVertexAttribArray(attribColor);
-
-	GLuint timeid = glGetUniformLocation(m_WaveShader, "u_Time");
-	glUniform1f(timeid, m_fScale);
-
-	GLuint startposid = glGetUniformLocation(m_WaveShader, "u_Startpos");
-	glUniform2f(startposid, -1.0f, 0);
-
-	GLuint endposid = glGetUniformLocation(m_WaveShader, "u_Endpos");
-	glUniform2f(endposid, 1.0f, 0.0f);
-
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBOColor);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBOHollowRect);
-		// glVertexAttribPointer : Draw시 데이터를 읽어갈 단위의 크기 및 시작점 설정
-		glVertexAttribPointer(attribPosition, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
-		glVertexAttribPointer(attribColor, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
-		glPointSize(3.0f);
-	// glDrawArrays : 랜더링의 시작
-		glEnable(GL_PROGRAM_POINT_SIZE);
-		glEnable(GL_POINT_SPRITE);
-	glDrawArrays(GL_POINTS, 0, 100);
-
-	glDisableVertexAttribArray(m_nVertices);
-}
-
-void Renderer::CreateLecture5VertexData()
-{
-	int pointCount = 100;
-	m_nVertices = pointCount;
-	float* rect = new float[m_nVertices * 4];
-	float* color = new float[m_nVertices * 4];
-
-	float* tmp = rect;
-	float* tmp2 = color;
-
-	for (int i = 0; i < pointCount; ++i)
-	{
-		float x = (float)rand() / (float)RAND_MAX;
-		float y = (float)rand() / (float)RAND_MAX;
-
-		if ((float)rand() / (float)RAND_MAX > 0.5f)
-			x *= -1.f;
-
-		::memcpy(tmp, &float4((float)i * 3 / (float)pointCount, y, x, 1.0f), sizeof(float4));
-		tmp += 4;
-	}
-
-	glGenBuffers(1, &m_VBOHollowRect);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBOHollowRect);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * m_nVertices * 4, rect, GL_STATIC_DRAW);
-
-
-}
 
 unsigned char * Renderer::loadBMPRaw(const char * imagepath, unsigned int& outWidth, unsigned int& outHeight)
 {
