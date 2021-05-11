@@ -19,9 +19,10 @@ float gTime = 0.0f;
 
 void RenderScene(void)
 {
+	glEnable(GL_BLEND);
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClearDepth(1.0f);
+	//glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// Renderer Test
 	//g_Renderer->Test();
@@ -34,8 +35,8 @@ void RenderScene(void)
 		-0.5f, -0.5f
 	};
 	
-	//g_Renderer->FillScreen(0.0f, 0.0f, 0.0f, 0.3f);
-	g_Renderer->DrawCube();
+	g_Renderer->FillScreen(0.0f, 0.0f, 0.0f, 0.3f);
+	g_Renderer->DrawParticleAnimation(0.0f);
 
 	
 	glutSwapBuffers();
@@ -48,8 +49,7 @@ void Idle(void)
 
 void MouseInput(int button, int state, int x, int y)
 {
-	//g_Renderer->SetTargetPoint(static_cast<float>(x), static_cast<float>(y));
-	g_Renderer->MouseInput(button, state, x, y);
+	g_Renderer->SetTargetPoint(static_cast<float>(x), static_cast<float>(y));
 	RenderScene();
 }
 
@@ -61,10 +61,6 @@ void KeyInput(unsigned char key, int x, int y)
 void SpecialKeyInput(int key, int x, int y)
 {
 	RenderScene();
-}
-
-void Mouse_routine(int x, int y) {
-	g_Renderer->MouseMove(x, y);
 }
 
 int main(int argc, char **argv)
@@ -98,7 +94,6 @@ int main(int argc, char **argv)
 	glutKeyboardFunc(KeyInput);
 	glutMouseFunc(MouseInput);
 	glutSpecialFunc(SpecialKeyInput);
-	glutMotionFunc(Mouse_routine);
 
 	glutMainLoop();
 

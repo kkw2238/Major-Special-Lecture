@@ -6,8 +6,6 @@
 #include <iostream>
 #include <vector>
 #include "Dependencies\glew.h"
-#include "Camera.h"
-#include "Object.h"
 
 struct float4 {
 	float4() { x = 0.0f; y = 0.0f; z = 0.0f; w = 0.0f; }
@@ -48,17 +46,10 @@ public:
 	GLuint CreatePngTexture(char * filePath);
 	void SetTargetPoint(float x, float y);
 	unsigned char * loadBMPRaw(const char * imagepath, unsigned int& outWidth, unsigned int& outHeight);
-
 public:
-	void KeyboardInput();
-	void MouseInput(int button, int state, int x, int y);
-	void MouseMove(int x, int y);
-public:
-	void CreateCubeMesh();
 	void CreateVSWaveVertex();
 	void DrawSTParticle(int sx, int sy, int ex, int ey, float time);
 	void DrawWaveParticle(float time);
-	void DrawCube();
 	void DrawParticleAnimation(float time);
 	void DrawLine();
 	std::vector<float>		m_pCenterPosition;
@@ -91,7 +82,6 @@ private:
 	GLuint m_SamplerShader = 0;
 	GLuint m_VSWaveShader = 0;
 	GLuint m_VSPaticleAnimation = 0;
-	GLuint m_simpleCube = 0;
 	
 	int m_UniformID = 0;
 
@@ -111,13 +101,5 @@ public:
 private:
 	int gDummyVertexCount = 0;
 	unsigned char* texture;
-
-	Camera* m_Camera;
-
-private:
-	Object* m_obj;
-
-	bool isClicked = false;
-	glm::vec2 m_curMousePos;
 };
 

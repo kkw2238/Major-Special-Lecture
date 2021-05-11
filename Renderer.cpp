@@ -32,20 +32,14 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	m_SamplerShader = CompileShaders("./Shaders/Sampler.vs", "./Shaders/Sampler.fs");
 	m_VSWaveShader = CompileShaders("./Shaders/VSWave.vs", "./Shaders/VSWave.fs");
 	m_VSPaticleAnimation = CompileShaders("./Shaders/PaticleAnimation.vs", "./Shaders/PaticleAnimation.fs");
-	m_simpleCube = CompileShaders("./Shaders/simpleCube.vs", "./Shaders/simpleCube.fs");
-	m_PBOTexture[0] = CreatePngTexture("./Texture/DDing.png");
+	m_PBOTexture[0] = CreatePngTexture("./Texture/Cloud-particle.png");
 
-	m_Camera = new Camera(m_WindowSizeX, m_WindowSizeY);
-	m_obj = new Object();
-
-	CreateCubeMesh();
+	CreateVSWaveVertex();
 
 	if (m_SolidRectShader > 0 && m_VBORect > 0)
 	{
 		m_Initialized = true;
 	}
-
-	
 }
 
 bool Renderer::IsInitialized()
@@ -105,160 +99,150 @@ bool Renderer::ReadFile(char* filename, std::string *target)
 	return true;
 }
 
-void Renderer::MouseInput(int button, int state, int x, int y)
-{
-	
-	if (button == GLUT_LEFT_BUTTON) {
-		switch (state) {
-		case GLUT_DOWN:
-			m_curMousePos = glm::vec2(x, y);
-			isClicked = true;
-			break;
-		case GLUT_UP:
-			isClicked = false;
-			break;
-		}
-	}
-}
-
-void Renderer::MouseMove(int x, int y)
-{
-	if (isClicked == false) return;
-	m_obj->Rotate( - (m_curMousePos.y - y) / 1000.0f, - (m_curMousePos.x - x) / 1000.0f, 0.0f);
-}
-
-void Renderer::CreateCubeMesh()
-{
-	float temp = 0.5f;
-
-	float cube[] = {
-		-temp, -temp, temp, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
-		temp, temp, temp, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f,
-		-temp, temp, temp, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f,
-		-temp, -temp, temp, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f,
-		temp, -temp, temp, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f,
-		temp, temp, temp, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f, // first face : R
-
-		temp, -temp, temp, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
-		temp, temp, -temp, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f,
-		temp, temp, temp, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f,
-		temp, -temp, temp, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
-		temp, -temp, -temp, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f,
-		temp, temp, -temp, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f, //second face : G
-
-		-temp, temp, temp, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
-		temp, temp, -temp, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f, 1.f,
-		-temp, temp, -temp, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f, 1.f,
-		-temp, temp, temp, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
-		temp, temp, temp, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f, 1.f,
-		temp, temp, -temp, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f, 1.f, //third face : B
-
-		-temp, -temp, -temp, 0.f, 0.f, -1.f, 1.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
-		-temp, temp, -temp, 0.f, 0.f, -1.f, 1.f, 1.f, 0.f, 1.f,
-		temp, temp, -temp, 0.f, 0.f, -1.f, 1.f, 1.f, 0.f, 1.f,
-		-temp, -temp, -temp, 0.f, 0.f, -1.f, 1.f, 1.f, 0.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a
-		temp, temp, -temp, 0.f, 0.f, -1.f, 1.f, 1.f, 0.f, 1.f,
-		temp, -temp, -temp, 0.f, 0.f, -1.f, 1.f, 1.f, 0.f, 1.f, //fourth face : R+G (yellow)
-
-		-temp, -temp, temp, -1.f, 0.f, 0.f, 1.f, 0.f, 1.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a 
-		-temp, temp, temp, -1.f, 0.f, 0.f, 1.f, 0.f, 1.f, 1.f,
-		-temp, temp, -temp, -1.f, 0.f, 0.f, 1.f, 0.f, 1.f, 1.f,
-		-temp, -temp, temp, -1.f, 0.f, 0.f, 1.f, 0.f, 1.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a 
-		-temp, temp, -temp, -1.f, 0.f, 0.f, 1.f, 0.f, 1.f, 1.f,
-		-temp, -temp, -temp, -1.f, 0.f, 0.f, 1.f, 0.f, 1.f, 1.f, // fifth face : R+B (purple)
-
-		-temp, -temp, temp, 0.f, -1.f, 0.f, 0.f, 1.f, 1.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a 
-		temp, -temp, -temp, 0.f, -1.f, 0.f, 0.f, 1.f, 1.f, 1.f,
-		temp, -temp, temp, 0.f, -1.f, 0.f, 0.f, 1.f, 1.f, 1.f,
-		-temp, -temp, temp, 0.f, -1.f, 0.f, 0.f, 1.f, 1.f, 1.f, //x, y, z, nx, ny, nz, r, g, b, a 
-		-temp, -temp, -temp, 0.f, -1.f, 0.f, 0.f, 1.f, 1.f, 1.f,
-		temp, -temp, -temp, 0.f, -1.f, 0.f, 0.f, 1.f, 1.f, 1.f, //sixth face : G+B (Cyan)
-	};
-
-	glGenBuffers(1, &m_VBORect);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBORect);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
-
-}
-
 void Renderer::CreateVSWaveVertex()
 {
-	float basePosX = -0.5f;
-	float basePosY = -0.5f;
-	float targetPosX = 0.5f;
-	float targetPosY = 0.5f;
+	int particleCount = 500;
+	float particleSize = 0.05f;
+	float particleInitPosX = 0.0f;
+	float particleInitPosY = 0.25f;
 
-	int pointCountX = 30;
-	int pointCountY = 30;
+	float* particleVertices = new float[particleCount * 2 * 3 * (3 + 2 + 4)];
+	int particleFloatCount = particleCount * 2 * 3 * (3 + 2 + 4);
+	m_nVertexCount = particleCount * 2 * 3;
 
-	float width = targetPosX - basePosX;
-	float height = targetPosY - basePosY;
+	int particleVertIndex = 0;
 
-	float* point = new float[pointCountX*pointCountY * 2];
-	float* vertices = new float[(pointCountX - 1)*(pointCountY - 1) * 2 * 3 * 3];
-	gDummyVertexCount = (pointCountX - 1)*(pointCountY - 1) * 2 * 3;
-
-	//Prepare points
-	for (int x = 0; x < pointCountX; x++)
+	for (int i = 0; i < particleCount; i++)
 	{
-		for (int y = 0; y < pointCountY; y++)
-		{
-			point[(y*pointCountX + x) * 2 + 0] = basePosX + width * (x / (float)(pointCountX - 1));
-			point[(y*pointCountX + x) * 2 + 1] = basePosY + height * (y / (float)(pointCountY - 1));
-		}
-	}
+		float randomValueX = 0.f;
+		float randomValueY = 0.f;
+		float randomValueZ = 0.f;
+		float randomStartTime = 0.f;
+		float velocityScale = 0.5f;
 
-	//Make triangles
-	int vertIndex = 0;
-	for (int x = 0; x < pointCountX - 1; x++)
-	{
-		for (int y = 0; y < pointCountY - 1; y++)
-		{
-			//Triangle part 1
-			vertices[vertIndex] = point[(y*pointCountX + x) * 2 + 0];
-			vertIndex++;
-			vertices[vertIndex] = point[(y*pointCountX + x) * 2 + 1];
-			vertIndex++;
-			vertices[vertIndex] = 0.f;
-			vertIndex++;
-			vertices[vertIndex] = point[((y + 1)*pointCountX + (x + 1)) * 2 + 0];
-			vertIndex++;
-			vertices[vertIndex] = point[((y + 1)*pointCountX + (x + 1)) * 2 + 1];
-			vertIndex++;
-			vertices[vertIndex] = 0.f;
-			vertIndex++;
-			vertices[vertIndex] = point[((y + 1)*pointCountX + x) * 2 + 0];
-			vertIndex++;
-			vertices[vertIndex] = point[((y + 1)*pointCountX + x) * 2 + 1];
-			vertIndex++;
-			vertices[vertIndex] = 0.f;
-			vertIndex++;
+		randomValueX = (rand() / (float)RAND_MAX - 0.5)*velocityScale;
+		randomValueY = (rand() / (float)RAND_MAX - 0.5)*velocityScale;
+		randomValueZ = 0.f;
+		randomStartTime = (rand() / (float)RAND_MAX)*20.f;
 
-			//Triangle part 2
-			vertices[vertIndex] = point[(y*pointCountX + x) * 2 + 0];
-			vertIndex++;
-			vertices[vertIndex] = point[(y*pointCountX + x) * 2 + 1];
-			vertIndex++;
-			vertices[vertIndex] = 0.f;
-			vertIndex++;
-			vertices[vertIndex] = point[(y*pointCountX + (x + 1)) * 2 + 0];
-			vertIndex++;
-			vertices[vertIndex] = point[(y*pointCountX + (x + 1)) * 2 + 1];
-			vertIndex++;
-			vertices[vertIndex] = 0.f;
-			vertIndex++;
-			vertices[vertIndex] = point[((y + 1)*pointCountX + (x + 1)) * 2 + 0];
-			vertIndex++;
-			vertices[vertIndex] = point[((y + 1)*pointCountX + (x + 1)) * 2 + 1];
-			vertIndex++;
-			vertices[vertIndex] = 0.f;
-			vertIndex++;
-		}
+		particleVertices[particleVertIndex] = -particleSize / 2.f + particleInitPosX;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = -particleSize / 2.f + particleInitPosY;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = 0.f;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = 0.f;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = 0.f;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomValueX;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomValueY;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomValueZ;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomStartTime;
+		particleVertIndex++;
+
+		particleVertices[particleVertIndex] = particleSize / 2.f + particleInitPosX;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = -particleSize / 2.f + particleInitPosY;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = 0.f;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = 1.f;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = 0.f;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomValueX;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomValueY;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomValueZ;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomStartTime;
+		particleVertIndex++;
+
+		particleVertices[particleVertIndex] = particleSize / 2.f + particleInitPosX;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = particleSize / 2.f + particleInitPosY;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = 0.f;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = 1.f;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = 1.f;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomValueX;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomValueY;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomValueZ;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomStartTime;
+		particleVertIndex++;
+
+		particleVertices[particleVertIndex] = -particleSize / 2.f + particleInitPosX;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = -particleSize / 2.f + particleInitPosY;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = 0.f;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = 0.f;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = 0.f;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomValueX;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomValueY;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomValueZ;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomStartTime;
+		particleVertIndex++;
+
+		particleVertices[particleVertIndex] = particleSize / 2.f + particleInitPosX;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = particleSize / 2.f + particleInitPosY;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = 0.f;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = 1.f;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = 1.f;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomValueX;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomValueY;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomValueZ;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomStartTime;
+		particleVertIndex++;
+
+		particleVertices[particleVertIndex] = -particleSize / 2.f + particleInitPosX;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = particleSize / 2.f + particleInitPosY;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = 0.f;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = 0.f;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = 1.f;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomValueX;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomValueY;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomValueZ;
+		particleVertIndex++;
+		particleVertices[particleVertIndex] = randomStartTime;
+		particleVertIndex++;
 	}
 
 	glGenBuffers(1, &m_VBORect);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBORect);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*(pointCountX - 1)*(pointCountY - 1) * 2 * 3 * 3, vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*particleFloatCount, particleVertices, GL_STATIC_DRAW);
 }
 
 void Renderer::DrawSTParticle(int sx, int sy, int ex, int ey, float time)
@@ -319,48 +303,6 @@ void Renderer::DrawWaveParticle(float time)
 	glDisableVertexAttribArray(attribPosition);
 }
 
-void Renderer::DrawCube()
-{
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
-
-	m_obj->Update();
-
-	glUseProgram(m_simpleCube);
-	int attribPosition = glGetAttribLocation(m_simpleCube, "a_Position");
-	int attribNormal = glGetAttribLocation(m_simpleCube, "a_Normal");
-	int attribColor = glGetAttribLocation(m_simpleCube, "a_Color");
-	
-	int uniformProjView = glGetUniformLocation(m_simpleCube, "u_ProjView");
-	int uniformModel = glGetUniformLocation(m_simpleCube, "u_Model");
-	int uniformRotate = glGetUniformLocation(m_simpleCube, "u_Rotation");
-	int uniformLight = glGetUniformLocation(m_simpleCube, "u_LightPos");
-	int uniformCamera = glGetUniformLocation(m_simpleCube, "u_CameraPos");
-
-	glUniformMatrix4fv(uniformProjView, 1, GL_FALSE,&(m_Camera->ProjView()[0][0]));
-	glUniformMatrix4fv(uniformModel, 1, GL_FALSE, &(m_obj->Matrix()[0][0]));
-	glUniformMatrix4fv(uniformRotate, 1, GL_FALSE, &(m_obj->RotateMatrix()[0][0]));
-	glUniform3f(uniformLight, 0, 2, 0);
-	glUniform3f(uniformCamera, m_Camera->Pos().x, m_Camera->Pos().y, m_Camera->Pos().z);
-
-	glEnableVertexAttribArray(attribPosition);
-	glEnableVertexAttribArray(attribNormal);
-	glEnableVertexAttribArray(attribColor);
-
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBORect);
-
-		glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 10, 0);
-		glVertexAttribPointer(attribNormal, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 10, (GLvoid*)(sizeof(float) * 3));
-		glVertexAttribPointer(attribColor, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 10, (GLvoid*)(sizeof(float) * 6));
-
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-	glDisableVertexAttribArray(attribPosition);
-	glDisableVertexAttribArray(attribNormal);
-	glDisableVertexAttribArray(attribColor);
-}
-
 void Renderer::DrawParticleAnimation(float time)
 {
 	glUseProgram(m_VSPaticleAnimation);
@@ -404,9 +346,6 @@ void Renderer::DrawLine()
 	int uniformTime = glGetUniformLocation(m_VSWaveShader, "u_Time");
 	glUniform1f(uniformTime, m_fScale);
 	m_fScale += 0.01f;
-
-	int uniformProjView = glGetUniformLocation(m_VSWaveShader, "u_ProjView");
-	glUniformMatrix4fv(uniformProjView, 1, GL_FALSE, &(m_Camera->ProjView()[0][0]));
 
 	unsigned int texID = GL_TEXTURE0;
 	for (int i = 0; i < NUM_OF_TEXTURE; ++i) {
@@ -490,7 +429,7 @@ void Renderer::Test(float* centers, float time ) // input 4
 	glUseProgram(m_SamplerShader);
 
 	m_UniformID++;
-	(m_UniformID %= 5);
+	(m_UniformID %= 5) + 1;
 
 	int uniformTex = glGetUniformLocation(m_SamplerShader, "uTexSampler");
 	glUniform1i(uniformTex, 0);

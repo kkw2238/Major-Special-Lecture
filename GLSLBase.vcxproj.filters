@@ -14,8 +14,6 @@
     <ClCompile Include="LoadPng.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Object.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer.h">
@@ -31,77 +29,6 @@
     <ClInclude Include="LoadPng.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="glm\common.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\exponential.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\ext.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\fwd.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\geometric.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\glm.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\integer.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\mat2x2.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\mat2x3.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\mat2x4.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\mat3x2.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\mat3x3.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\mat3x4.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\mat4x2.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\mat4x3.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\mat4x4.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\matrix.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\packing.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\trigonometric.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\vec2.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\vec3.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\vec4.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="glm\vector_relational.hpp">
-      <Filter>glm</Filter>
-    </ClInclude>
-    <ClInclude Include="Object.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\SolidRect.vs">
@@ -146,12 +73,6 @@
     <None Include="Shaders\PaticleAnimation.vs">
       <Filter>Shader</Filter>
     </None>
-    <None Include="Shaders\simpleCube.vs">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Shaders\simpleCube.fs">
-      <Filter>Shader</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -165,9 +86,6 @@
     </Filter>
     <Filter Include="Shader">
       <UniqueIdentifier>{67bf60d2-2daa-4412-a92a-1ef604d4703f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="glm">
-      <UniqueIdentifier>{54f00db0-71dc-4f61-aaa1-16b4986a0ed2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
